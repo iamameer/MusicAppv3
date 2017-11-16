@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
     boolean isMute;
     int curVol;
-    int oldX,oldY,newX,newY;
+    int oldY,newY;
 
     Bitmap imgPrev;
     String titlePrev, artistPrev;
@@ -479,11 +479,9 @@ public class MainActivity extends AppCompatActivity {
         int action = event.getAction();
         switch (action){
             case MotionEvent.ACTION_DOWN:   //capture current xy coordinates
-                //oldX = (int)event.getX();
                 oldY = (int)event.getY();
                 return true;
             case MotionEvent.ACTION_MOVE:   //capture new xy coordinates
-                //newX = (int)event.getX();
                 newY = (int)event.getY();
                 return true;
             case MotionEvent.ACTION_UP:     //volume up or down based on coordinate change
