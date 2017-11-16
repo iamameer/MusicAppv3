@@ -491,7 +491,6 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     distance = (newY-oldY);}
                 if (distance > 350){changeVolume(oldY,newY);} //changeVolume only if moved > 20dp
-                Toast.makeText(getApplicationContext(),"Distance: "+distance,Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onTouchEvent(event);
