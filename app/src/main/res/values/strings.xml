@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MusicAppv3</string>
+    <string name="musicList">MusicAppv3 : Song List</string>
+
+    <string name="artist">Unknown Artist</string>
+    <string name="title">Unknown Title</string>
+    <string name="volume">50</string>
+
+    <string name="dur">00</string>
+</resources>
