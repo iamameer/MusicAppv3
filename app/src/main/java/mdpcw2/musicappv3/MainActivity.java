@@ -464,6 +464,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    //TODO noti - bind service?
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -490,11 +491,24 @@ public class MainActivity extends AppCompatActivity {
                     distance = (newY-oldY)*-1;
                 }else{
                     distance = (newY-oldY);}
-                if (distance > 350){changeVolume(oldY,newY);} //changeVolume only if moved > 20dp
+                if (distance > 350){changeVolume(oldY,newY);} //changeVolume only if moved > 350dp
                 return true;
             default:
                 return super.onTouchEvent(event);
         }
+    }
+
+    //starts notification once app is paused
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("STATE test","its paused");
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("STATE test","its resumed");
     }
 
     @Override

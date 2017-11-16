@@ -184,6 +184,8 @@ public class musicList extends AppCompatActivity {
     }
 
     @Override
+    //TODO - scan entire storage
+    // TODO 2 - next autoplay
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_list);
