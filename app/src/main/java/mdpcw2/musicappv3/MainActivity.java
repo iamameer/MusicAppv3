@@ -479,15 +479,21 @@ public class MainActivity extends AppCompatActivity {
         int action = event.getAction();
         switch (action){
             case MotionEvent.ACTION_DOWN:   //capture current xy coordinates
-                oldX = (int)event.getX();
+                //oldX = (int)event.getX();
                 oldY = (int)event.getY();
                 return true;
             case MotionEvent.ACTION_MOVE:   //capture new xy coordinates
-                newX = (int)event.getX();
+                //newX = (int)event.getX();
                 newY = (int)event.getY();
                 return true;
             case MotionEvent.ACTION_UP:     //volume up or down based on coordinate change
-                changeVolume(oldY,newY);
+                Integer distance;           //setting up distance moved
+                if ((newY-oldY) <0){
+                    distance = (newY-oldY)*-1;
+                }else{
+                    distance = (newY-oldY);}
+                if (distance > 350){changeVolume(oldY,newY);} //changeVolume only if moved > 20dp
+                Toast.makeText(getApplicationContext(),"Distance: "+distance,Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onTouchEvent(event);
