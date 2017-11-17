@@ -198,11 +198,16 @@ public class musicList extends AppCompatActivity {
         notification.setAutoCancel(true);
 
         //setting up noti
-        notification.setSmallIcon(R.drawable.ic_icon);
+        notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitlePrev.getText()); //showing current song
         notification.setContentTitle(txtTitlePrev.getText());
         notification.setContentText(txtArtistPrev.getText()+"\t\t "+dur);
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
+        if (imgPrev != null){
+            notification.setLargeIcon(bmp);
+        }else{
+            notification.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.bg_music));
+        }
 
         //return to Main activity
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
