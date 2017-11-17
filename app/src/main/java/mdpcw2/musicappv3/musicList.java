@@ -2,6 +2,8 @@ package mdpcw2.musicappv3;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,9 +17,11 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,14 +38,17 @@ public class musicList extends AppCompatActivity {
 
     private static final int REQ = 1;
     private static final int FIN = 20;
+    private static final int NOTI_ID = 50;
+
     ArrayList<File> songList;
     ArrayList<String> displayList;
     private ListView listView;
     private ImageView imgPrev;
     private TextView txtTitlePrev, txtArtistPrev;
 
+    NotificationCompat.Builder notification;
     MediaMetadataRetriever metadataRetriever;
-    String loc;
+    String loc,dur;
     byte[] art;
     Bitmap bmp;
 
@@ -66,6 +73,7 @@ public class musicList extends AppCompatActivity {
             txtArtistPrev.setText(getIntent().getStringExtra("artistPrev"));}
         if (getIntent().getStringExtra("titlePrev") != null){
             txtTitlePrev.setText(getIntent().getStringExtra("titlePrev"));}
+            dur = getIntent().getStringExtra("dur");
     }
 
     //sending result once item is selected
@@ -183,6 +191,30 @@ public class musicList extends AppCompatActivity {
         return result;
     }
 
+    //method to start noti
+    private void startNoti(){
+        //creating new one, assuming music updated
+        notification = new NotificationCompat.Builder(this,"MusicAppv3");
+        notification.setAutoCancel(true);
+
+        //setting up noti
+        notification.setSmallIcon(R.drawable.ic_icon);
+        notification.setTicker(txtTitlePrev.getText()); //showing current song
+        notification.setContentTitle(txtTitlePrev.getText());
+        notification.setContentText(txtArtistPrev.getText()+"\t\t "+dur);
+        notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
+
+        //return to Main activity
+        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                getApplicationContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.setContentIntent(pendingIntent);
+
+        //broadcast
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.notify(NOTI_ID,notification.build());
+    }
+
     @Override
     //TODO - scan entire storage
     // TODO 2 - next autoplay
@@ -233,6 +265,11 @@ public class musicList extends AppCompatActivity {
     public void onUserLeaveHint(){
         Intent intent = new Intent();
         setResult(Activity.RESULT_CANCELED,intent);
+        try{
+            startNoti();
+        }catch (Exception e){
+            Log.e("NOTI ERROR",e.toString());
+        }
         finish();
     }
 }

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgBg,imgLoad,imgPlay,imgPause,imgStop,imgAlbum,imgVolume, imgList;
     private TextView txtTitle,txtArtist,txtVolume, txtDur, txtCur;
     private SeekBar seekBar;
-    boolean isMute;
+    boolean isMute, isListOpened;
     int curVol;
     int oldY,newY;
 
@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar.getProgressDrawable().setColorFilter(
                 new PorterDuffColorFilter(Color.rgb(242, 53, 138), PorterDuff.Mode.SRC_IN));
 
+        isListOpened = false;
         isMute = false;
         curVol = 50;
     }
@@ -114,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
         //loading music from gallery
         imgLoad.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) { pickMusic();}
+            public void onClick(View view) {
+                stopNoti();
+                pickMusic();}
         });
 
         //play button
@@ -211,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
         imgList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //stop a notif if exist
+                stopNoti();
+                isListOpened = true;
                 //passing the meta-data via intent
                 Intent intent = new Intent(MainActivity.this,musicList.class);
                 //sending bitmap via uri
@@ -225,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
                 //sending song title and song artist (String)
                 if (titlePrev != null){intent.putExtra("titlePrev",(String)titlePrev);}
                 if (artistPrev != null){intent.putExtra("artistPrev",(String)artistPrev);}
+                String dur = txtDur.getText().toString();
+                intent.putExtra("dur",dur);
                 startActivityForResult(intent, SELECT_MUSIC);
             }
         });
@@ -478,7 +486,7 @@ public class MainActivity extends AppCompatActivity {
         notification.setSmallIcon(R.drawable.ic_icon);
         notification.setTicker(txtTitle.getText()); //showing current song
         notification.setContentTitle(txtTitle.getText());
-        notification.setContentText(txtArtist.getText()+"\t"+txtDur.getText());
+        notification.setContentText(txtArtist.getText()+"\t\t "+txtDur.getText());
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
 
         //return to Main activity
@@ -487,9 +495,16 @@ public class MainActivity extends AppCompatActivity {
                 getApplicationContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         notification.setContentIntent(pendingIntent);
 
-        //broadcast
+        //start noti
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.notify(NOTI_ID,notification.build());
+    }
+
+    //method to cancel a noti
+    private void stopNoti(){
+        //cancel noti
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.cancel(NOTI_ID);
     }
 
     @Override
@@ -530,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode,int resultCode, Intent data){
         super.onActivityResult(resultCode,resultCode,data);
-
+        isListOpened = false;
         switch (requestCode){
             //case loading a new song from storage
             case CODE_LOAD:
@@ -617,6 +632,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopNoti();
         finish();
     }
 
@@ -632,7 +648,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("NOTI ERROR",e.toString());
             }
         }
-
+        //dont run noti if MusicList is opened
+        if (isListOpened){stopNoti();}
     }
 
 }
