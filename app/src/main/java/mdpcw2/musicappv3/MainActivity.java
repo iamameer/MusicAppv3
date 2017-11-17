@@ -1,5 +1,6 @@
 package mdpcw2.musicappv3;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private final static int MIN_VOLUME = 0;
     private static final int CODE_LOAD = 5;
     private static final int SELECT_MUSIC = 10;
+    private static final int NOTI_ID = 50;
+
     private ImageView imgBg,imgLoad,imgPlay,imgPause,imgStop,imgAlbum,imgVolume, imgList;
     private TextView txtTitle,txtArtist,txtVolume, txtDur, txtCur;
     private SeekBar seekBar;
@@ -464,6 +468,30 @@ public class MainActivity extends AppCompatActivity {
         txtVolume.setText(String.valueOf(curVol));
     }
 
+    //method to start noti
+    private void startNoti(){
+        //creating new one, assuming music updated
+        notification = new NotificationCompat.Builder(this,"MusicAppv3");
+        notification.setAutoCancel(true);
+
+        //setting up noti
+        notification.setSmallIcon(R.drawable.ic_icon);
+        notification.setTicker(txtTitle.getText()); //showing current song
+        notification.setContentTitle(txtTitle.getText());
+        notification.setContentText(txtArtist.getText()+"\t"+txtDur.getText());
+        notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
+
+        //return to Main activity
+        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                getApplicationContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.setContentIntent(pendingIntent);
+
+        //broadcast
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.notify(NOTI_ID,notification.build());
+    }
+
     @Override
     //TODO noti - bind service?
     protected void onCreate(Bundle savedInstanceState) {
@@ -497,19 +525,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onTouchEvent(event);
         }
-    }
-
-    //starts notification once app is paused
-    @Override
-    public void onPause(){
-        super.onPause();
-        Log.d("STATE test","its paused");
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.d("STATE test","its resumed");
     }
 
     @Override
@@ -609,6 +624,15 @@ public class MainActivity extends AppCompatActivity {
     //also this method handle onBackPressed()
     @Override
     public void onUserLeaveHint(){
+        //only starts noti if its playing, if paused: exit means exit
+        if (mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING){
+            try{
+                startNoti();
+            }catch (Exception e){
+                Log.e("NOTI ERROR",e.toString());
+            }
+        }
 
     }
+
 }
