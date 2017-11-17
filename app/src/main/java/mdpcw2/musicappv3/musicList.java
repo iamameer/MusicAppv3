@@ -227,4 +227,11 @@ public class musicList extends AppCompatActivity {
         }
     }
 
+    //when a user pressed Home key (also this method handle onBackPressed() )
+    @Override
+    public void onUserLeaveHint(){
+        Intent intent = new Intent();
+        setResult(Activity.RESULT_CANCELED,intent);
+        finish();
+    }
 }

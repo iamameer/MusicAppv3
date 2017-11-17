@@ -603,23 +603,10 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         finish();
     }
-    /*stack referenced:
-    //https://developer.android.com/guide/components/activities/tasks-and-back-stack.html
-    //Except as noted, this content is licensed under Creative Commons Attribution 2.5.
-    //For details and restrictions, see the Content License.
+
+    //starts noti when a user pressed Home key (also this method handle onBackPressed() )
     @Override
-    public void onBackPressed(){
-        Intent detailActivity = new Intent(this,MainActivity.class);
-        //pending intent for notification
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        //uses android:parentActivityName
-        //android.support.PARENT.ACTIVITY meta-data
-        stackBuilder.addNextIntentWithParentStack(detailActivity);
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(30,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+    public void onUserLeaveHint(){
 
-        notificationBuilder.setContentIntent(pendingIntent);
-
-        super.onBackPressed();
-    } test */
+    }
 }
