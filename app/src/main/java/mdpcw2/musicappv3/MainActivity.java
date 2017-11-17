@@ -1,5 +1,6 @@
 package mdpcw2.musicappv3;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -483,6 +484,7 @@ public class MainActivity extends AppCompatActivity {
         notification.setAutoCancel(true);
 
         //setting up noti
+        notification.setColor(Color.rgb(40, 94, 18));
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitle.getText()); //showing current song
         notification.setContentTitle(txtTitle.getText());  //TODO current/progress in noti :c

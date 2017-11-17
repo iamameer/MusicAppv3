@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -198,6 +199,7 @@ public class musicList extends AppCompatActivity {
         notification.setAutoCancel(true);
 
         //setting up noti
+        notification.setColor(Color.rgb(40, 94, 18));
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitlePrev.getText()); //showing current song
         notification.setContentTitle(txtTitlePrev.getText());
