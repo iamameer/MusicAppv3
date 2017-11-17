@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
     Bitmap imgPrev;
     String titlePrev, artistPrev;
 
-    MediaMetadataRetriever metadataRetriever;
-    byte[] art;
-
-    Uri uri;
     MP3Player mp3Player = new MP3Player();
+    MediaMetadataRetriever metadataRetriever;
+    NotificationCompat.Builder notification;
 
+    byte[] art;
+    Uri uri;
     Handler handler;
     Runnable runnable;
 
@@ -604,7 +605,8 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    //starts noti when a user pressed Home key (also this method handle onBackPressed() )
+    //starts noti when a user pressed Home key
+    //also this method handle onBackPressed()
     @Override
     public void onUserLeaveHint(){
 

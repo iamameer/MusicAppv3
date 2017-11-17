@@ -227,7 +227,8 @@ public class musicList extends AppCompatActivity {
         }
     }
 
-    //when a user pressed Home key (also this method handle onBackPressed() )
+    //when a user pressed Home key
+    //also this method handle onBackPressed()
     @Override
     public void onUserLeaveHint(){
         Intent intent = new Intent();
