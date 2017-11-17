@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         imgLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isListOpened = true;
                 stopNoti();
                 pickMusic();}
         });
@@ -488,8 +489,9 @@ public class MainActivity extends AppCompatActivity {
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitle.getText()); //showing current song
         notification.setContentTitle(txtTitle.getText());  //TODO current/progress in noti :c
-        notification.setContentText(txtArtist.getText()+"\t\t "+txtCur.getText()+" / "+txtDur.getText());
+        notification.setContentText(txtArtist.getText()+"\t\t\t\t\t\t\t "+txtDur.getText());
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
+        //set LargeIcon = Album
         if (imgPrev != null){
             notification.setLargeIcon(imgPrev);
         }else{

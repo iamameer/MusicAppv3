@@ -205,6 +205,7 @@ public class musicList extends AppCompatActivity {
         notification.setContentTitle(txtTitlePrev.getText());
         notification.setContentText(txtArtistPrev.getText()+"\t\t "+dur);
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
+        //set LargeIcon = Album
         if (imgPrev != null){
             notification.setLargeIcon(bmp);
         }else{
