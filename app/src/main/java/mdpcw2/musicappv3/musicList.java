@@ -203,7 +203,7 @@ public class musicList extends AppCompatActivity {
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitlePrev.getText()); //showing current song
         notification.setContentTitle(txtTitlePrev.getText());
-        notification.setContentText(txtArtistPrev.getText()+"\t\t "+dur);
+        notification.setContentText(txtArtistPrev.getText()+"\t\t\t\t\t\t\t "+dur);
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
         //set LargeIcon = Album
         if (imgPrev != null){

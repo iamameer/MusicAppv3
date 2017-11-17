@@ -1,9 +1,7 @@
 package mdpcw2.musicappv3;
-
-import android.app.Notification;
+//TODO 1: file description, 2: comments - line num, 3:
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -19,7 +17,6 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -484,11 +481,13 @@ public class MainActivity extends AppCompatActivity {
         notification = new NotificationCompat.Builder(this,"MusicAppv3");
         notification.setAutoCancel(true);
 
-        //setting up noti
+        //setting up noti //TODO Noti Generator
         notification.setColor(Color.rgb(40, 94, 18));
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(txtTitle.getText()); //showing current song
-        notification.setContentTitle(txtTitle.getText());  //TODO current/progress in noti :c
+        notification.setContentTitle(txtTitle.getText());
+        //TODO current/progress in noti :c
+        //TODO https://www.youtube.com/watch?v=g9LDWM3a3H8
         notification.setContentText(txtArtist.getText()+"\t\t\t\t\t\t\t "+txtDur.getText());
         notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
         //set LargeIcon = Album
