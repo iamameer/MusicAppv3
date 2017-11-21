@@ -2,6 +2,7 @@ package mdpcw2.musicappv3;
 //TODO 1: file description, 2: comments - line num, 3:
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -256,6 +257,12 @@ public class MainActivity extends AppCompatActivity {
             };
             handler.postDelayed(runnable,1000); //delay call itself once every second
         }else { // stop condition
+            //Bringing the app from background to foreground
+            //https://stackoverflow.com/a/12892632
+            Intent it = new Intent("intent.my.action");
+            it.setComponent(new ComponentName(getApplicationContext().getPackageName(), MainActivity.class.getName()));
+            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getApplicationContext().startActivity(it);
             if(uri != null){
                 Toast.makeText(getApplicationContext(),"Finished playing: "+getFileName(uri),Toast.LENGTH_SHORT).show();
             }else {
@@ -516,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    //TODO noti - bind service?
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
