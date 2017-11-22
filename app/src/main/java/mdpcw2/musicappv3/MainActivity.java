@@ -1,5 +1,5 @@
 package mdpcw2.musicappv3;
-//TODO 1: file description, 2: comments - line num, 3:
+//TODO 1: file description, 2: comments - line num, 3:LOG
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -269,8 +269,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"Finished song",Toast.LENGTH_SHORT).show();
             }
             stop(); //resetting the UI once song ended
+            stopNoti();
+            //stopService(new Intent(this,NotificationGenerator.class));
+            //put stopNoti under destroy
         }
-
     }
 
     //selecting music directly
@@ -658,12 +660,19 @@ public class MainActivity extends AppCompatActivity {
         if (mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING){
             try{
                 startNoti();
+                //Intent intent = new Intent(this,NotificationGenerator.class);
+                //intent.putExtra(,);
+                //startService(intent);
             }catch (Exception e){
                 Log.e("NOTI ERROR",e.toString());
             }
         }
         //dont run noti if MusicList is opened
-        if (isListOpened){stopNoti();}
+        if (isListOpened){
+            stopNoti();
+            //stopService(new Intent(this,NotificationGenerator.class));
+            //put stopNoti under destroy
+        }
     }
 
 }

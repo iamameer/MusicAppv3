@@ -17,16 +17,21 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="intent.my.action" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".musicList">
+        <activity android:name=".musicList"></activity>
 
-        </activity>
+        <service
+            android:name=".NotificationGenerator"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
