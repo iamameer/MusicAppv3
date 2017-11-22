@@ -26,12 +26,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".musicList"></activity>
+        <activity android:name=".musicList"/>
 
         <service
             android:name=".NotificationGenerator"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="false"/>
     </application>
 
 </manifest>
