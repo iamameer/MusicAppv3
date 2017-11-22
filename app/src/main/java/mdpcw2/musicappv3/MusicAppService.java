@@ -1,32 +1,33 @@
+/*
+    This Service generates notification and handle music
+ */
+
 package mdpcw2.musicappv3;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class MusicAppService extends IntentService {
 
-    private static final int NOTI_ID = 100;
-    NotificationCompat.Builder notification;
+    //Global ID
+    private static final int NOTI_ID = 100;  //Permission Request ID
+    NotificationCompat.Builder notification; //Create a notification object
 
-    String title, artist, duration;
-    Bitmap bmp;
-    boolean isNotiRunning;
-
+    String title, artist, duration; //String to hold title, artist and duration
+    Bitmap bmp;                     //Bitmap variable to hold Album/Song image
 
     public MusicAppService() {
         super("Notification Service");
     }
 
-    //initialising variables
+    //This method initialise values and items
     private void init(){
         title = "Unknown title";
         artist = "Unknown artist";
@@ -34,13 +35,13 @@ public class MusicAppService extends IntentService {
         bmp = null;
     }
 
-    //method to launch a notification
+    //This method launch a notification
     public void startNoti(){
         //creating new one, assuming music updated
         notification = new NotificationCompat.Builder(this,"MusicAppv3");
         notification.setAutoCancel(true);
 
-        //setting up noti
+        //setting up notification
         notification.setColor(Color.rgb(40, 94, 18));
         notification.setSmallIcon(R.drawable.music_note);
         notification.setTicker(title); //showing current song
@@ -62,25 +63,17 @@ public class MusicAppService extends IntentService {
                 getApplicationContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         notification.setContentIntent(pendingIntent);
 
-        //start noti
+        //start notification
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.notify(NOTI_ID,notification.build());
-        isNotiRunning = true;
+        Log.d("MusicApp","Notification via MusicAppServiceStarted");
     }
 
-    //method to stop a running notification
-    public void stopNoti(){
-        if (isNotiRunning){
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            nm.cancelAll();
-        }
-    }
-
-
+    //This method handle incoming intent //onStartCommand passed to here eventually
     @Override
     protected void onHandleIntent(Intent intent){
         if (intent == null){
-            //alternate code
+            Log.d("MusicApp","Null intent from MainActivity");
         }else{
             //getting intent data from MainActivity into global variable
             if (intent.getByteArrayExtra("imgPrev") != null){
@@ -93,8 +86,8 @@ public class MusicAppService extends IntentService {
                 title = intent.getStringExtra("titlePrev");}
             duration = intent.getStringExtra("dur");
             startNoti();
-            //plays music here
         }
+        Log.d("MusicApp","MusicAppService onHandleIntent");
     }
 
     //seems like not needed?
@@ -108,23 +101,21 @@ public class MusicAppService extends IntentService {
     /*@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId); //try comment out? +return
-        //plays music here
         return START_STICKY;
     }*/
 
+    //onCreate lifecycle
     @Override
     public void onCreate() {
         super.onCreate();
-
         init();
         Log.d("MusicApp","MusicAppService created");
     }
 
+    //onDestroy lifecycle
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //stopNoti();
         Log.d("MusicApp","MusicAppService destroyed");
-        //stop here
     }
 }

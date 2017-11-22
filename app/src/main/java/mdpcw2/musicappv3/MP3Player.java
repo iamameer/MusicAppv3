@@ -1,3 +1,7 @@
+/*
+    This class handle the music (mediaplayer)
+ */
+
 package mdpcw2.musicappv3;
 
 import android.content.Context;
@@ -55,7 +59,7 @@ public class MP3Player {
         mediaPlayer.start();
     }
 
-    //added a new method to load/play Uri directly
+    //Added a new method to load/play Uri directly
     public void loadUri(Uri uri, Context context) {
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);

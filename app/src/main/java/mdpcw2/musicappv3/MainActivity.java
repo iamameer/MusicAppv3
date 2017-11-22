@@ -1,5 +1,9 @@
+/*
+    Main Activity for GUI - playing, pausing, stopping etc
+ */
+
 package mdpcw2.musicappv3;
-//TODO 1: file description, 2: comments - line num, 3:LOG
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -34,35 +38,34 @@ import java.io.FileDescriptor;
 
 public class MainActivity extends AppCompatActivity {
 
-    //global declaration
-    private static final int FIN = 20;
-    private final static int MAX_VOLUME = 100;
-    private final static int MIN_VOLUME = 0;
-    private static final int CODE_LOAD = 5;
-    private static final int SELECT_MUSIC = 10;
-    private static final int NOTI_ID = 100;
+    //Line 42-47: Static Global ID
+    private static final int FIN = 20;              //Denotes Finished
+    private final static int MAX_VOLUME = 100;      //Maximum Volume
+    private final static int MIN_VOLUME = 0;        //Minimum Volume
+    private static final int CODE_LOAD = 5;         //Load music (button)
+    private static final int SELECT_MUSIC = 10;     //Selected Music (from MusicList)
+    private static final int NOTI_ID = 100;         //Notification ID
 
+    //Line 50-67: Global Variables to be used
     private ImageView imgBg,imgLoad,imgPlay,imgPause,imgStop,imgAlbum,imgVolume, imgList;
     private TextView txtTitle,txtArtist,txtVolume, txtDur, txtCur;
     private SeekBar seekBar;
-    boolean isMute, isListOpened;
-    int curVol;
-    int oldY,newY;
+    boolean isMute, isListOpened; //Status: isMute = if muted // isListOpened = if MusicList started
+    int curVol;                   //Current Volume
+    int oldY,newY;                //Old Y-coordinate // New Y-coordinate
 
-    Bitmap imgPrev;
-    String titlePrev, artistPrev;
+    Bitmap imgPrev;               //Bitmap variable to hold Album/Song image
+    String titlePrev, artistPrev; //Song Title //Song Artist
 
-    MP3Player mp3Player = new MP3Player();
-    MusicAppService musicAppService = new MusicAppService();
-    MediaMetadataRetriever metadataRetriever;
-    NotificationCompat.Builder notification;
+    MP3Player mp3Player = new MP3Player();    //Created an object of MP3Player()
+    MediaMetadataRetriever metadataRetriever; //retrieving meta-data from File
 
-    byte[] art;
-    Uri uri;
-    Handler handler;
-    Runnable runnable;
+    byte[] art;            //Byte[] data-type to hold Bitmap byte conversion
+    Uri uri;               //Uri to hold file uri (to be played, or retrieve meta-data)
+    Handler handler;       //Handler+Runnable
+    Runnable runnable;     // = Thread to play the music
 
-    //initializing values
+    //This method initialise values and items
     private void init(){
         imgBg = findViewById(R.id.imgBg);
         imgLoad = findViewById(R.id.imgLoad);
@@ -109,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
         curVol = 50;
     }
 
-    //setting up events
+    //This method set-up the Events Listener for each items created
     private void setEvents(){
 
-        //loading music from gallery
+        //Line 119-124: Loading music from gallery
         imgLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 pickMusic();}
         });
 
-        //play button
+        //Line 128-135: Play button
         imgPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //pause button
+        //Line 139-146: Pause button
         imgPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //stop button
+        //Line 150-160: Stop button
         imgStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -157,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //mute button
+        //Line 164-186: Mute button
         imgVolume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -183,27 +186,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //seekBar listener
-        //seekBar in media player event reference:
-        //https://www.youtube.com/watch?v=HB3DoZh1QWU
+        //Line 192-213: seekBar listener
+        //This listener activate when user drag to touch the progress
+        //Reference: https://www.youtube.com/watch?v=HB3DoZh1QWU
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress;
             boolean input;
 
-            @Override
-            //capture progress and input during onProgressChange
+            @Override //capture progress and input during onProgressChange
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 progress = i;
                 input = b;
             }
 
-            @Override
+            @Override //nothing
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
 
-            @Override
-            //once user stopped tracking, seekTo() the music player
+            @Override //once user stopped tracking, seekTo() the music player
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (input){
                     mp3Player.mediaPlayer.seekTo(progress);
@@ -211,14 +212,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //List button
+        //Line 216-236: List button
         imgList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 isListOpened = true;
                 //passing the meta-data via intent
                 Intent intent = new Intent(MainActivity.this,musicList.class);
-                //sending bitmap via uri
+                //Line 225-230: sending bitmap via uri
                 //http://www.jayrambhia.com/blog/pass-activity-bitmap
                 //Jay Rambhia
                 if (imgPrev != null){
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                     byte[] byteArray = bStream.toByteArray();
                     intent.putExtra("imgPrev", byteArray);
                 }
-                //sending song title and song artist (String)
+                //Line 232-235: Sending song title and song artist (String)
                 if (titlePrev != null){intent.putExtra("titlePrev",(String)titlePrev);}
                 if (artistPrev != null){intent.putExtra("artistPrev",(String)artistPrev);}
                 intent.putExtra("dur",txtDur.getText().toString());
@@ -237,56 +238,60 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //creating a thread for the music player
+    //This method create a thread for the music player
     private void playCycle(){
+        //Line 244-245: updating progress and current progress time
         seekBar.setProgress(mp3Player.getProgress());
         txtCur.setText(getTime(mp3Player.getProgress()));
-        if (!mp3Player.mediaPlayer.isPlaying()){
-            stop();
-        }
 
-        //if the music player is playing/paused, run thread
+        //stopping the MediaPlayer if no music playing
+        if (!mp3Player.mediaPlayer.isPlaying()){stop();}
+
+        //If the music player is playing/paused, run thread
         if ((mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING) || (mp3Player.getState() == MP3Player.MP3PlayerState.PAUSED)){
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    playCycle();
+                    playCycle(); //recursive
                 }
             };
             handler.postDelayed(runnable,1000); //delay call itself once every second
-        }else { // stop condition
-            //Bringing the app from background to foreground
-            //https://stackoverflow.com/a/12892632
+        }else {           // stop condition
+            //Line 262-265: Bringing the app from background to foreground
+            //Reference: https://stackoverflow.com/a/12892632
             Intent it = new Intent("intent.my.action");
             it.setComponent(new ComponentName(getApplicationContext().getPackageName(), MainActivity.class.getName()));
             it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(it);
+
+            //Toast to give notice finished playing
             if(uri != null){
                 Toast.makeText(getApplicationContext(),"Finished playing: "+getFileName(uri),Toast.LENGTH_SHORT).show();
             }else {
                 Toast.makeText(getApplicationContext(),"Finished song",Toast.LENGTH_SHORT).show();
             }
-            stop(); //resetting the UI once song ended
-            stopNoti();
-            //stopService(new Intent(this,MusicAppService.class));
-            //put stopNoti under destroy
+            reset();     //resetting the UI once song ended
+            stopNoti(); //stopping any notification, if exist
+            Log.d("MusicApp","Finished playing");
         }
     }
 
-    //selecting music directly
+    //This method select music directly from sdcard
     private void pickMusic(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Audio.Media.INTERNAL_CONTENT_URI);
+        //Line 283: Restricting the path to download folder
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         String path = dir.getPath();
         Uri data = Uri.parse(path);
 
+        //Line 288: Filter the file type
         intent.setDataAndType(data,"audio/*");
         startActivityForResult(intent,CODE_LOAD);
 
         Toast.makeText(getApplicationContext(),"Select a music",Toast.LENGTH_SHORT).show();
     }
 
-    //Getting file name from Uri
+    //This method get file name from Uri
     //https://stackoverflow.com/questions/5568874/how-to-extract-the-file-name-from-uri-returned-from-intent-action-get-content
     public String getFileName(Uri uri) {
         String result = null;
@@ -312,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    //change Pause/Play respectively
+    //This method change Pause/Play respectively
     private void playPause(){
         //if its playing, pause it
         if (mp3Player.getState() ==  MP3Player.MP3PlayerState.PLAYING) {
@@ -322,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
             imgPause.setEnabled(false);
             Toast.makeText(getApplicationContext(),"Music Paused",Toast.LENGTH_SHORT).show();
             mp3Player.pause();
+            Log.d("MusicApp","Music Paused");
             //if its paused, play it
         }else if (mp3Player.getState() == MP3Player.MP3PlayerState.PAUSED){
             imgPlay.setVisibility(View.INVISIBLE);
@@ -330,17 +336,21 @@ public class MainActivity extends AppCompatActivity {
             imgPause.setEnabled(true);
             Toast.makeText(getApplicationContext(),"Music Resumed",Toast.LENGTH_SHORT).show();
             mp3Player.play();
+            Log.d("MusicApp","Music Played");
             //if its stopped, load new
         }else if(mp3Player.getState() == MP3Player.MP3PlayerState.STOPPED){
             imgLoad.performClick();
+            Log.d("MusicApp","Music Load");
             //if error, display toast
         }else if (mp3Player.getState() == MP3Player.MP3PlayerState.ERROR) {
             Toast.makeText(getApplicationContext(),"Error - Restart application",Toast.LENGTH_SHORT).show();
+            Log.d("MusicApp","Music Error");
         }
     }
 
-    //stopping music and resetting play/pause button
+    //This method stop music and resetting play/pause button
     private void stop(){
+        Log.d("MusicApp","Music Stopped");
         mp3Player.stop();
         imgStop.setEnabled(false);
         imgPlay.setEnabled(true);
@@ -351,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
         reset();
     }
 
-    //reset UI
+    //This method reset UI back to initialize (onCreate) state
     private void reset(){
         //reset images
         imgBg.setImageDrawable(getDrawable(R.drawable.bg_music));
@@ -374,15 +384,18 @@ public class MainActivity extends AppCompatActivity {
         imgPrev = null;
         titlePrev = null;
         artistPrev = null;
+
+        Log.d("MusicApp","UI Reset");
     }
 
-    //acquiring meta-data
+    //This method acquire meta-data from the file
     //http://mrbool.com/how-to-extract-meta-data-from-media-file-in-android/28130
     //Sanyam Kalra 2014
     private void getMeta(Uri uri){
         metadataRetriever = new MediaMetadataRetriever();
         try{
-            //getting filepath (fileDescriptor) from Uri
+            //Line 402-404
+            //Getting filepath (filedescriptor) from Uri
             //https://stackoverflow.com/questions/3401579/get-filename-and-path-from-uri-from-mediastore
             //Jun 24 '16 at 15:55
             //YYamil
@@ -415,7 +428,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //convert milliseconds to minute and seconds
+    //This method convert milliseconds to minute and seconds (int progress)
+    //and return in String value, to be displayed in TextView
     private String getTime(Integer time){
         int min,sec;
         String minsec;
@@ -437,10 +451,11 @@ public class MainActivity extends AppCompatActivity {
         return minsec;
     }
 
-    //setting up volume
+    //This method set the volume
     private void setVol(Integer vol){
         float newVolume = (float) (1-(Math.log(MAX_VOLUME - vol)/Math.log(MAX_VOLUME)));
         mp3Player.mediaPlayer.setVolume(newVolume,newVolume);
+        Log.d("MusicApp","New volume: "+newVolume);
     }
 
     //changing volume based on coordinate change
@@ -450,12 +465,12 @@ public class MainActivity extends AppCompatActivity {
         if (newY < oldY) {      //swipe up =volume increase
             curVol = curVol + 10;
             if (curVol >= MAX_VOLUME){
-                curVol = MAX_VOLUME;
+                curVol = MAX_VOLUME; //reset if exceeded
             }
         }else if (newY > oldY){ //swipe down = volume decrease
             curVol = curVol - 10;
             if (curVol <= MIN_VOLUME){
-                curVol = MIN_VOLUME;
+                curVol = MIN_VOLUME; //reset if exceeded
             }
         }
 
@@ -482,65 +497,43 @@ public class MainActivity extends AppCompatActivity {
         txtVolume.setText(String.valueOf(curVol));
     }
 
-    //method to start noti
-    private void startNoti(){
-        //creating new one, assuming music updated
-        notification = new NotificationCompat.Builder(this,"MusicAppv3");
-        notification.setAutoCancel(true);
-
-        //setting up noti //TODO Noti Generator
-        notification.setColor(Color.rgb(40, 94, 18));
-        notification.setSmallIcon(R.drawable.music_note);
-        notification.setTicker(txtTitle.getText()); //showing current song
-        notification.setContentTitle(txtTitle.getText());
-        //TODO current/progress in noti :c
-        //TODO https://www.youtube.com/watch?v=g9LDWM3a3H8
-        notification.setContentText(txtArtist.getText()+"\t\t\t\t\t\t\t "+txtDur.getText());
-        notification.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle());
-        //set LargeIcon = Album
-        if (imgPrev != null){
-            notification.setLargeIcon(imgPrev);
-        }else{
-            notification.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.bg_music));
-        }
-
-        //return to Main activity
-        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                getApplicationContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        notification.setContentIntent(pendingIntent);
-
-        //start noti
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(NOTI_ID,notification.build());
-    }
-
-    //method to cancel a noti
+    //This method cancel a notification
     private void stopNoti(){
-        //cancel noti
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nm.cancelAll();
+        Log.d("MusicApp","Notification from MainActivity stopped");
     }
 
+    //onCreate lifecyle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Line 511-512: Initialising and setting up events for items and variables
         init();
         setEvents();
+
+        Log.d("MusicApp","MainActivity onCreate()");
     }
 
-    //gesture detect
+    //onStart lifeCycle
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.d("MusicApp","MainActivity onStart()");
+    }
+
+    //This Listener detect gesture (touch)
     //https://guides.codepath.com/android/gestures-and-touch-events
     @Override
     public boolean onTouchEvent(MotionEvent event){
         int action = event.getAction();
         switch (action){
-            case MotionEvent.ACTION_DOWN:   //capture current xy coordinates
+            case MotionEvent.ACTION_DOWN:   //capture current y coordinates
                 oldY = (int)event.getY();
                 return true;
-            case MotionEvent.ACTION_MOVE:   //capture new xy coordinates
+            case MotionEvent.ACTION_MOVE:   //capture new y coordinates
                 newY = (int)event.getY();
                 return true;
             case MotionEvent.ACTION_UP:     //volume up or down based on coordinate change
@@ -556,6 +549,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Method to handle the activity sent from Intent (Load, List)
     @Override
     protected void onActivityResult(int requestCode,int resultCode, Intent data){
         super.onActivityResult(resultCode,resultCode,data);
@@ -592,10 +586,11 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),"Playing: "+getFileName(data.getData()),Toast.LENGTH_SHORT).show();
                     }catch (Exception e){
                         Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_SHORT).show();
-                        Log.d("Error",e.toString());
+                        Log.d("MusicApp","Error: "+e.toString());
                     }
                 }else{
                     Toast.makeText(getApplicationContext(),"No music chosen",Toast.LENGTH_SHORT).show();
+                    Log.d("MusicApp","No music chosen");
                 }
                 break;
             case SELECT_MUSIC:
@@ -629,31 +624,52 @@ public class MainActivity extends AppCompatActivity {
 
                     }catch (Exception e){
                         Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_SHORT).show();
-                        Log.d("Error",e.toString());
+                        Log.d("MusicApp","Error: "+e.toString());
                     }
+                    Log.d("MusicApp","RESULT_OK");
                 }else if(resultCode == RESULT_CANCELED){
                     Toast.makeText(getApplicationContext(),"No music chosen",Toast.LENGTH_SHORT).show();
+                    Log.d("MusicApp","RESULT_CANCELLED");
                 }else if(resultCode == FIN){
+                    Log.d("MusicApp","RESULT = FIN");
                     // do nothing
                 }
                 break;
             default:
                 Toast.makeText(getApplicationContext(),"Error loading music",Toast.LENGTH_SHORT).show();
+                Log.d("MusicApp","Error loading music");
                 break;
         }
     }
 
+    //onResume lifecycle
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("MusicApp", "MainActivity Resumed");
+        Log.d("MusicApp", "MainActivity onResume()");
     }
 
+    //onPause lifeCycle
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("MusicApp","MainActivity onPause()");
+    }
+
+    //onStop lifeCycle
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.d("MusicApp","MainActivity onStop()");
+    }
+
+    //onDestroy lifecycle
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopNoti();
         finish();
+        Log.d("MusicApp", "MainActivity onDestroyed()");
     }
 
     //starts noti when a user pressed Home key
@@ -684,10 +700,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("NOTI ERROR",e.toString());
             }
         }
-        //dont run noti if MusicList is opened
-        /*if (isListOpened){
-            stopService(new Intent(getApplicationContext(),MusicAppService.class));
-        }*/
+        Log.d("MusicApp","MainActivity onUserLeaveHint");
     }
 
 }
