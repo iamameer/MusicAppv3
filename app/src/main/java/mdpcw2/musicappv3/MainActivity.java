@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int MIN_VOLUME = 0;
     private static final int CODE_LOAD = 5;
     private static final int SELECT_MUSIC = 10;
-    private static final int NOTI_ID = 50;
+    private static final int NOTI_ID = 100;
 
     private ImageView imgBg,imgLoad,imgPlay,imgPause,imgStop,imgAlbum,imgVolume, imgList;
     private TextView txtTitle,txtArtist,txtVolume, txtDur, txtCur;
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     String titlePrev, artistPrev;
 
     MP3Player mp3Player = new MP3Player();
+    MusicAppService musicAppService = new MusicAppService();
     MediaMetadataRetriever metadataRetriever;
     NotificationCompat.Builder notification;
 
@@ -214,8 +215,6 @@ public class MainActivity extends AppCompatActivity {
         imgList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //stop a notif if exist
-                stopNoti();
                 isListOpened = true;
                 //passing the meta-data via intent
                 Intent intent = new Intent(MainActivity.this,musicList.class);
@@ -231,8 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 //sending song title and song artist (String)
                 if (titlePrev != null){intent.putExtra("titlePrev",(String)titlePrev);}
                 if (artistPrev != null){intent.putExtra("artistPrev",(String)artistPrev);}
-                String dur = txtDur.getText().toString();
-                intent.putExtra("dur",dur);
+                intent.putExtra("dur",txtDur.getText().toString());
                 startActivityForResult(intent, SELECT_MUSIC);
             }
         });
@@ -270,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
             }
             stop(); //resetting the UI once song ended
             stopNoti();
-            //stopService(new Intent(this,NotificationGenerator.class));
+            //stopService(new Intent(this,MusicAppService.class));
             //put stopNoti under destroy
         }
     }
@@ -521,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
     private void stopNoti(){
         //cancel noti
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.cancel(NOTI_ID);
+        nm.cancelAll();
     }
 
     @Override
@@ -646,6 +644,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("MusicApp", "MainActivity Resumed");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         stopNoti();
@@ -659,20 +663,31 @@ public class MainActivity extends AppCompatActivity {
         //only starts noti if its playing, if paused: exit means exit
         if (mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING){
             try{
-                startNoti();
-                //Intent intent = new Intent(this,NotificationGenerator.class);
-                //intent.putExtra(,);
-                //startService(intent);
+                //startNoti();
+                Intent intent = new Intent(this,MusicAppService.class);
+                //sending bitmap via uri
+                //http://www.jayrambhia.com/blog/pass-activity-bitmap
+                //Jay Rambhia
+                if (imgPrev != null){
+                    ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+                    imgPrev.compress(Bitmap.CompressFormat.PNG,100,bStream);
+                    byte[] byteArray = bStream.toByteArray();
+                    intent.putExtra("imgPrev", byteArray);
+                }
+                //sending song title and song artist (String)
+                if (titlePrev != null){intent.putExtra("titlePrev",(String)titlePrev);}
+                if (artistPrev != null){intent.putExtra("artistPrev",(String)artistPrev);}
+                String dur = txtDur.getText().toString();
+                intent.putExtra("dur",dur);
+                startService(intent);
             }catch (Exception e){
                 Log.e("NOTI ERROR",e.toString());
             }
         }
         //dont run noti if MusicList is opened
-        if (isListOpened){
-            stopNoti();
-            //stopService(new Intent(this,NotificationGenerator.class));
-            //put stopNoti under destroy
-        }
+        /*if (isListOpened){
+            stopService(new Intent(getApplicationContext(),MusicAppService.class));
+        }*/
     }
 
 }

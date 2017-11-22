@@ -31,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -223,6 +224,13 @@ public class musicList extends AppCompatActivity {
         nm.notify(NOTI_ID,notification.build());
     }
 
+    //method to cancel a noti
+    private void stopNoti(){
+        //cancel noti
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.cancelAll();
+    }
+
     @Override
     //TODO - scan entire storage
     // TODO 2 - next autoplay
@@ -232,6 +240,9 @@ public class musicList extends AppCompatActivity {
 
         init();
         setEvents();
+
+        //stop a notification if exists
+        stopNoti();
 
         //reading storage permission
         if(ContextCompat.checkSelfPermission(musicList.this,
@@ -247,6 +258,15 @@ public class musicList extends AppCompatActivity {
         }else{
             setList();
         }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        init();
+        //stop a notification if exists
+        stopNoti();
     }
 
     @Override
